@@ -6,10 +6,15 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_migration/sqflite_migration.dart';
 import 'package:sqflite_migration/src/migrator.dart';
 
-class MockDatabase extends Mock implements Database {}
+class MockDatabase extends Mock implements DatabaseExecutor {
+  @override
+  Future<void> execute(String sql, [List<Object?>? arguments]) async {
+    return super.noSuchMethod(Invocation.method(#execute, [sql]));
+  }
+}
 
 void main() {
-  test('should not run any executions on an empty initialiazationScript list',
+  test('should not run any executions on an empty initializationScript list',
       () async {
     var db = MockDatabase();
 
@@ -23,7 +28,7 @@ void main() {
     verifyZeroInteractions(db);
   });
 
-  test('should run executions on an initialiazationScript list of 1', () async {
+  test('should run executions on an initializationScript list of 1', () async {
     var db = MockDatabase();
 
     var config = MigrationConfig(
@@ -36,7 +41,7 @@ void main() {
     verify(db.execute('script line 1'));
   });
 
-  test('should run all executions on an initialiazationScript list', () async {
+  test('should run all executions on an initializationScript list', () async {
     var db = MockDatabase();
 
     var config = MigrationConfig(
@@ -58,7 +63,8 @@ void main() {
       migrationScripts: ['migration script line 1', 'migration script line 2'],
     );
 
-    await Migrator(config).executeInitialization(db, 1);
+    await Migrator(config)
+        .executeInitialization(db, config.migrationScripts.length + 1);
 
     verify(db.execute('init script line 1'));
     verify(db.execute('init script line 2'));
@@ -98,8 +104,7 @@ void main() {
         throwsA(TypeMatcher<AssertionError>().having(
             (e) => e.message,
             'message',
-            equals(
-                'New version (2) requires 2 migrations more than what you have.'))));
+            equals('New version (2) requires exact 2 migrations.'))));
   });
 
   test(
@@ -116,8 +121,7 @@ void main() {
         throwsA(TypeMatcher<AssertionError>().having(
             (e) => e.message,
             'message',
-            equals(
-                'New version (2) requires 2 migrations more than what you have.'))));
+            equals('New version (2) requires exact 2 migrations.'))));
   });
 
   test('should not execute migrations older than the oldVersion', () async {
@@ -131,26 +135,10 @@ void main() {
       ],
     );
 
-    await Migrator(config).executeMigration(db, 2, 3);
+    await Migrator(config)
+        .executeMigration(db, 2, config.migrationScripts.length + 1);
 
     verify(db.execute('migration line 2'));
     verify(db.execute('migration line 3'));
-  });
-
-  test('should not execute migrations newer than the newVersion', () async {
-    var db = MockDatabase();
-    var config = MigrationConfig(
-      initializationScript: [],
-      migrationScripts: [
-        'migration line 1',
-        'migration line 2',
-        'migration line 3',
-      ],
-    );
-
-    await Migrator(config).executeMigration(db, 1, 2);
-
-    verify(db.execute('migration line 1'));
-    verify(db.execute('migration line 2'));
   });
 }

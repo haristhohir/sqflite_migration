@@ -1,6 +1,26 @@
 # Change Log for sqflite_migration
 A library to enable sqlite db migrations, using sqflite plugin.
 
+## [v0.3.0](http://github.com/flutterings/sqflite_migration/compare/v0.2.0...v0.3.0) - 2021-04-14
+
+### Feats
+* Support null-safety.
+[36a4011](https://github.com/flutterings/sqflite_migration/commit/36a4011fdd0def1469c28bb154f3edb0d0b93319)
+
+### Bugs
+* Fixed async/await bug in executeInitialization function.
+[0fb80ae](https://github.com/flutterings/sqflite_migration/commit/0fb80aee26564d3df92e4950b3976d94f8db3abc)
+
+### Docs
+* Fix example code in documentation.
+[3a36bdf](https://github.com/flutterings/sqflite_migration/commit/3a36bdf3227df1894e17a5ff15917a9a96d1aa34)
+[3a36bdf](https://github.com/flutterings/sqflite_migration/commit/3a36bdf3227df1894e17a5ff15917a9a96d1aa34)
+
+## [v0.2.0](http://github.com/flutterings/sqflite_migration/compare/v0.1.1...v0.2.0) - 2020-09-04
+
+### Bugs
+* Based on open_database_with_migration.dart new version of database every time will be equal migrations.length + 1. Situation when we'll perform migration to the version lesser than migrations.length + 1 looks impossible, because of the way we determine the current version. In this case assertion should check it in the manner suggested by the current PR. [ad24d00](https://github.com/flutterings/sqflite_migration/commit/ad24d00874189fbf8c73ef4a8b60cceb9f3d1748)
+
 ## [v0.1.2](http://github.com/flutterings/sqflite_migration/compare/v0.1.1...v0.1.2) - 2019-08-23
 
 ### Test
